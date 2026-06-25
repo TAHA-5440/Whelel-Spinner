@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/Lucky Wheel/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/Lucky Wheel/$1"
+    }
+  ]
+}
