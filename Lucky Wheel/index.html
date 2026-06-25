@@ -1,35 +1,166 @@
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale = 1.0">
-        <link rel="stylesheet" type="text/css" href="main.css">
-        <title>Spin Wheel</title>
-    </head>
-    <body>
-        <button id="spin"></button>
-        <span class="arrow"></span>
-        <img class="element" src = "img/element.png">
-        <img class="jackpot" src = "img/jackpot.png" style="position: absolute; top: 320px; left: 1305px">
-        <div class="container">
-            <div class="one">5</div>
-            <div class="two">1</div>
-            <div class="three">2</div>
-            <div class="four">1</div>
-            <div class="five">3</div>
-            <div class="six">1</div>
-            <div class="seven">2</div>
-            <div class="eight">1</div>
-            <div class="oneone">XX</div>
-            <div class="onetwo">    XX</div>
-            <div class="twoone"></div>
-            <div class="twotwo"></div>
-            <div class="fourone"></div>
-            <div class="fourtwo"></div>
-            <div class="sixone"></div>
-            <div class="sixtwo"></div>
-            <div class="eightone"></div>
-            <div class="eighttwo"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of Names</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-brand">
+            <i class="fa-solid fa-dharmachakra brand-logo"></i>
+            <span>Wheel of Names</span>
         </div>
-        <script src="main.js"></script>
-    </body>
+        <div class="nav-controls">
+            <!-- Hidden secret elements preserved for JS engine -->
+            <button id="secretRigBtn" style="display:none;"><span id="rigIndicatorDot"></span></button>
+            <button id="soundToggleBtn" style="display:none;"><i id="soundIcon"></i></button>
+        </div>
+    </header>
+
+    <!-- Main App Container -->
+    <main class="app-container">
+        <!-- Left: Wheel Stage -->
+        <section class="wheel-section">
+            <div class="wheel-stage-container">
+                <!-- Pointer on right pointing left -->
+                <div class="wheel-pointer-right"></div>
+                
+                <canvas id="wheelCanvas" width="650" height="650"></canvas>
+                
+                <!-- Center Hub -->
+                <div class="wheel-center-hub" id="wheelHub">
+                    <span>SPIN</span>
+                </div>
+
+                <!-- Hover instructions like screenshot -->
+                <div class="spin-instruction" id="spinInstruction">
+                    Click to spin<br>
+                    <small>or press Ctrl+Enter</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right: Sidebar Deck -->
+        <aside class="sidebar-section">
+            <!-- Tabs Header -->
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" data-tab="entries">
+                    <span>Entries</span> <span class="tab-badge" id="entriesCountBadge">8</span>
+                </button>
+                <button class="tab-btn" data-tab="results">
+                    <span>Results</span> <span class="tab-badge" id="resultsCountBadge">0</span>
+                </button>
+                <button class="tab-btn rig-tab-btn" data-tab="rigging" style="display:none;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Rig</span>
+                </button>
+            </div>
+
+            <!-- Tab 1: Entries -->
+            <div class="tab-pane active" id="entriesPane">
+                <div class="toolbar">
+                    <button id="shuffleBtn" class="tool-btn"><i class="fa-solid fa-shuffle"></i> Shuffle</button>
+                    <button id="sortBtn" class="tool-btn"><i class="fa-solid fa-arrow-down-a-z"></i> Sort</button>
+                    <div class="palette-dropdown">
+                        <select id="paletteSelect" class="tool-select">
+                            <option value="classic">Classic Rainbow</option>
+                            <option value="neon">Neon Night</option>
+                            <option value="pastel">Soft Pastel</option>
+                            <option value="gold">Luxury Gold</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="textarea-wrapper">
+                    <textarea id="entriesTextarea" spellcheck="false" placeholder="Enter names or items here (one per line)..."></textarea>
+                </div>
+
+                <div class="entries-footer">
+                    <span class="hint"><i class="fa-solid fa-lightbulb"></i> Tip: Click the wheel or press Ctrl+Enter to spin!</span>
+                </div>
+            </div>
+
+            <!-- Tab 2: Results -->
+            <div class="tab-pane" id="resultsPane">
+                <div class="results-header">
+                    <h3>Past Winners</h3>
+                    <button id="clearResultsBtn" class="tool-btn"><i class="fa-solid fa-trash"></i> Clear</button>
+                </div>
+                <ul class="results-list" id="resultsList">
+                    <li class="empty-state">No winners yet. Spin the wheel!</li>
+                </ul>
+            </div>
+
+            <!-- Tab 3: Secret Rigging -->
+            <div class="tab-pane" id="riggingPane">
+                <div class="rig-box">
+                    <div class="rig-header">
+                        <h4><i class="fa-solid fa-user-secret"></i> Covert Rigging Engine</h4>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="rigToggleCheckbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <p class="desc">
+                        Silently guarantee the outcome. Deceleration physics remain 100% natural and authentic.
+                    </p>
+
+                    <div class="rig-form" id="rigFormControls">
+                        <div class="input-group">
+                            <label>Mode</label>
+                            <select id="rigModeSelect" class="input-field">
+                                <option value="force">Force Land on Target</option>
+                                <option value="avoid">Never Land on Target</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Target Winner</label>
+                            <select id="rigTargetSelect" class="input-field">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="secret-hotkeys">
+                            <h5>Covert Keyboard Shortcuts</h5>
+                            <p>Arm targets instantly without touching mouse:</p>
+                            <div class="key-grid">
+                                <div><kbd>1</kbd> - <kbd>9</kbd></div> <span>Select Winner #1 to #9</span>
+                                <div><kbd>0</kbd></div> <span>Disable Rigging (Fair Mode)</span>
+                                <div><kbd>R</kbd></div> <span>Toggle Rigging Tab</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Winner Announcement Modal Card -->
+    <div class="modal" id="winnerModal">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="winner-dialog">
+            <button class="modal-close" id="modalCloseBtn">&times;</button>
+            <div class="crown-anim"><i class="fa-solid fa-crown"></i></div>
+            <div class="winner-label">WINNER!</div>
+            <div class="winner-name" id="winnerNameDisplay">Ali</div>
+            <div class="dialog-buttons">
+                <button id="removeWinnerBtn" class="btn-subtle"><i class="fa-solid fa-user-minus"></i> Remove</button>
+                <button id="closeDialogBtn" class="btn-main">Awesome!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio assets -->
+    <audio id="tickAudio" src="147239759.mp3" preload="auto"></audio>
+
+    <script src="main.js"></script>
+</body>
 </html>

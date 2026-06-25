@@ -1,0 +1,11 @@
+{
+  "name": "lucky-wheel",
+  "version": "1.0.0",
+  "description": "Wheel of fortune with a twist using HTML, CSS, and JavaScript.",
+  "scripts": {
+    "start": "npx --yes serve .",
+    "dev": "npx --yes serve ."
+  },
+  "author": "",
+  "license": "ISC"
+}
